@@ -457,6 +457,33 @@ void Config::setConfigPath (const char *generalPath, const char *proxyPath, cons
         _proxy.staging.bgwrite.policy = readString(_proxyPt, "staging.bgwrite_policy");
         _proxy.staging.bgwrite.scanIntv = readInt(_proxyPt, "staging.bgwrite_scan_interval");
         _proxy.staging.bgwrite.scheduledTime = readString(_proxyPt, "staging.bgwrite_scheduled_time");
+
+        // replication
+        _proxy.replication.enabled = readBool(_proxyPt, "replication.enabled");
+        _proxy.replication.masterName = readString(_proxyPt, "replication.master_name");
+        _proxy.replication.numSentinels = readInt(_proxyPt, "replication.num_sentinels");
+        if (_proxy.replication.numSentinels <= 0 || _proxy.replication.numSentinels > MAX_NUM_SENTINELS) {
+            LOG(ERROR) << "Number of sentinel instances must be within 1 and " << MAX_NUM_SENTINELS;
+            exit(-1);
+        }
+        for (int i = 0; i < _proxy.replication.numSentinels; i++) {
+            std::string section = "sentinel" + std::to_string(i + 1);
+            _proxy.replication.sentinels[i].ip = readString(_proxyPt, (section + ".ip").c_str());
+            _proxy.replication.sentinels[i].port = readInt(_proxyPt, (section + ".port").c_str());
+            
+            if (_proxy.replication.sentinels[i].ip.empty()) {
+                LOG(ERROR) << "IP address for sentinel " << (i + 1) << " is not specified";
+                exit(-1);
+            }
+            
+            if (_proxy.replication.sentinels[i].port <= 0 || _proxy.replication.sentinels[i].port > 65535) {
+                LOG(ERROR) << "Invalid port for sentinel " << (i + 1) << ": " << _proxy.replication.sentinels[i].port;
+                exit(-1);
+            }
+            
+            LOG(INFO) << "Sentinel " << (i + 1) << ": " << _proxy.replication.sentinels[i].ip 
+                      << ":" << _proxy.replication.sentinels[i].port;
+        }
     }
 
     printConfig();
@@ -1120,7 +1147,29 @@ std::string Config::getProxyStagingBackgroundWriteTimestamp() const {
     return _proxy.staging.bgwrite.scheduledTime;
 }
 
+bool Config::proxyReplicationEnabled() const {
+    assert(!_proxyPt.empty());
+    return _proxy.replication.enabled;
+}
 
+std::string Config::getProxyReplicationMasterName() const {
+    assert(!_proxyPt.empty());
+    return _proxy.replication.masterName;
+}
+
+int Config::getProxyReplicationNumSentinels() const {
+    assert(!_proxyPt.empty());
+    return _proxy.replication.numSentinels;
+}
+
+std::vector<std::pair<std::string, int>> Config::getProxyReplicationSentinelsContext() const {
+    assert(!_proxyPt.empty());
+    std::vector<std::pair<std::string, int>> sentinels;
+    for (int i = 0; i < _proxy.replication.numSentinels; i++) {
+        sentinels.push_back(std::make_pair(_proxy.replication.sentinels[i].ip, _proxy.replication.sentinels[i].port));
+    }
+    return sentinels;
+}
 
 // Print
 
@@ -1384,6 +1433,24 @@ void Config::printConfig() const {
             , getProxyStagingBackgroundWriteScanInterval()
             , getProxyStagingBackgroundWriteTimestamp().c_str()
         );
+        length += snprintf(buf + length, bufSize - length,
+            " - Replication               : %s\n"
+            "   - Master name             : %s\n"
+            "   - Num of sentinels        : %d\n"
+            , proxyReplicationEnabled() ? "On" : "Off"
+            , getProxyReplicationMasterName().c_str()
+            , getProxyReplicationNumSentinels()
+        );
+        for (int i = 0; i < getProxyReplicationNumSentinels(); i++) {
+            length += snprintf(buf + length, bufSize - length,
+                "   - Sentinel %02d \n"
+                "     - IP                    : %s\n"
+                "     - Port                  : %d\n"
+                , i + 1
+                , getProxyReplicationSentinelsContext()[i].first.c_str()
+                , getProxyReplicationSentinelsContext()[i].second
+            );
+        }
         LOG(ERROR) << buf;
         length = 0;
     }

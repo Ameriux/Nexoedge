@@ -55,6 +55,9 @@ Proxy::Proxy(ProxyCoordinator *coordinator, std::map<int, std::string> *map, BgC
         case MetaStoreType::REDIS:
             _metastore = new RedisMetaStore();
             break;
+        // case MetaStoreType::SENTINEL:
+        //     _metastore = new RedisSentinelMetaStore();
+        //     break;
         default:
             _metastore = new RedisMetaStore();
             break;

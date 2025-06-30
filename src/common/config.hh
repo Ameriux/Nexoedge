@@ -172,6 +172,12 @@ public:
     int getProxyStagingBackgroundWriteScanInterval() const;
     std::string getProxyStagingBackgroundWriteTimestamp() const;
 
+    // proxy.replication
+    bool proxyReplicationEnabled() const;
+    std::string getProxyReplicationMasterName() const;
+    int getProxyReplicationNumSentinels() const;
+    std::vector<std::pair<std::string, int>> getProxyReplicationSentinelsContext() const;
+
     void printConfig() const;
 
 private:
@@ -404,6 +410,15 @@ private:
                 std::string scheduledTime;
             } bgwrite;
         } staging;
+        struct {
+            bool enabled;
+            std::string masterName;
+            int numSentinels;
+            struct {
+                std::string ip;
+                int port;
+            } sentinels[MAX_NUM_SENTINELS];
+        } replication;
     } _proxy;
 };
 

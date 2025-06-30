@@ -37,6 +37,7 @@ typedef uint32_t                   num_t;
 #define MAX_NUM_CONTAINERS         (int)(100)
 #define MAX_NUM_AGENTS             (int)(100)
 #define MAX_NUM_PROXY              (int)(100)
+#define MAX_NUM_SENTINELS          (int)(100)
 #define MAX_NUM_WORKERS            (int)(256)
 #define MAX_NUM_NEAR_IP_RANGES     (16)
 
@@ -166,6 +167,7 @@ enum HostType {
 
 enum MetaStoreType {
     REDIS,
+    SENTINEL, // redis-sentinel support
 
     UNKNOWN_METASTORE
 };
