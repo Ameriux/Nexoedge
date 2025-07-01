@@ -49,10 +49,17 @@ add_executable( immutable_policy_test EXCLUDE_FROM_ALL proxy/immutable_manager_t
 add_dependencies( immutable_policy_test google-log )
 target_link_libraries( immutable_policy_test ncloud_immutability ncloud_proxy glog curl )
 
+###################
+# Sentinel Client #
+###################
+add_executable( sentinel_client_test EXCLUDE_FROM_ALL replication/sentinel_client_test.cc )
+add_dependencies( sentinel_client_test google-log )
+target_link_libraries( sentinel_client_test ncloud_config ncloud_replication glog pthread )
+
 #######################
 # Collection of tests #
 #######################
-set ( ncloud_unit_tests coding_test container_test coordinator_test agent_test zmq_client_test metastore_test immutable_policy_test )
+set ( ncloud_unit_tests coding_test container_test coordinator_test agent_test zmq_client_test metastore_test immutable_policy_test sentinel_client_test )
 add_custom_target( tests )
 add_dependencies( tests ${ncloud_unit_tests} )
 

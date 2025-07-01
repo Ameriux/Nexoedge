@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 
-#include "../../metastore/redis_metastore.hh"
+#include "../metastore/redis_metastore.hh"
 #include "sentinel/sentinel_client.hh"
 #include "sentinel/connection_pool.hh"
 
@@ -185,9 +185,9 @@ protected:
 private:
     std::unique_ptr<SentinelClient> _sentinel_client;    /**< Sentinel client for Redis node monitoring */
     std::unique_ptr<ConnectionPool> _connection_pool;    /**< Connection pool for Redis connections */
-    std::string _master_name;                           /**< Redis master name in Sentinel */
+    std::string _master_name;                            /**< Redis master name in Sentinel */
     std::vector<std::pair<std::string, int>> _sentinels; /**< List of Sentinel hosts */
-    std::string _auth_pass;                             /**< Redis auth password(optional) */
+    std::string _auth_pass;                              /**< Redis auth password(optional) */
     
 };
 

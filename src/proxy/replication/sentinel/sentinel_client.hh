@@ -110,4 +110,4 @@ private:
     static void* MonitorThread(void* arg);
 };
 
-#endif
+#endif // _SENTINEL_CLIENT_HH

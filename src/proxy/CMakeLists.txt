@@ -15,6 +15,12 @@ file( GLOB_RECURSE staging_source staging/*.cc )
 add_library( ncloud_staging STATIC EXCLUDE_FROM_ALL ${staging_source} )
 target_link_libraries( ncloud_staging ncloud_common )
 
+######################
+## Proxy Replication ##
+######################
+
+add_subdirectory( replication )
+
 #########################
 ## Proxy Deduplication ##
 #########################
@@ -42,7 +48,7 @@ target_link_libraries( ncloud_immutability ncloud_common ncloud_metastore hiredi
 file( GLOB proxy_source *.cc interfaces/*.cc )
 add_library( ncloud_proxy STATIC EXCLUDE_FROM_ALL ${proxy_source} )
 add_dependencies( ncloud_proxy zero-mq hiredis-cli jwt-cpp )
-target_link_libraries( ncloud_proxy ncloud_code ncloud_common ncloud_metastore ncloud_dedup ncloud_staging ncloud_immutability zmq event OpenSSL::SSL ldap lber)
+target_link_libraries( ncloud_proxy ncloud_code ncloud_common ncloud_metastore ncloud_dedup ncloud_staging ncloud_immutability ncloud_replication zmq event OpenSSL::SSL ldap lber)
 
 ################
 ## Proxy main ##
